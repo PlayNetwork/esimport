@@ -16,8 +16,8 @@ Create and activate a virtual environment for this project:
 
 ```
 #!shell
-virtualenv search-async-agent
-source search-async-agent/bin/activate
+virtualenv search-sync-agent
+source search-sync-agent/bin/activate
 ```
 
 Now clone this repo into your projects folder:
