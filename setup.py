@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-setup(name='search-sync-agent',
+setup(name='search-async-agent',
 	version='0.1.0',
 	description='Synchronizes 4d database content from Conductor with a ElasticSearch',
 	author='PlayNetwork, Inc.',
