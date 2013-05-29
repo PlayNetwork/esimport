@@ -32,17 +32,12 @@ cd search-sync-agent
 
 
 ## Prerequisites
-Unless otherwise specified, all prerequisites can be installed using
+All dependencies are noted in setup.py and can be installed via the following command after git clone:
 
 ```
 #!shell
-pip install library-name
+python setup.py develop
 ```
-
-- [`pyes`][pyes-lib]: ElasticSearch library for Python.
-- [`requests`][requests-lib]: A simple HTTP library.  Selected over the
-  standard `urllib2` for its ease of use, excellent readability, and elegance.
-
 
 ## Script Assumptions
 - The key names are the first row of data in the TDF file.
@@ -63,7 +58,7 @@ ElasticSearch database located at server `-s` address **10.129.1.201:9200**:
 
 ```
 #!shell
-python ssa.py -f '\\skynyrd\Export\Dev\data\Song.txt' -s '10.129.1.210:9200'
+python -m ssa -f '\\skynyrd\Export\Dev\data\Song.txt' -s '10.129.1.210:9200'
 ```
 
 Process each file in a directory `-d` with the extension `-tdf_ext` **.txt**
@@ -73,7 +68,7 @@ server `-s` address **10.129.1.201:9200**:
 
 ```
 #!shell
-python ssa.py -d '\\skynyrd\Export\Dev\data\' -tdf_ext '.txt' '.tdf' -map_ext '.map' -s '10.129.1.210:9200'
+python -m ssa -d '\\skynyrd\Export\Dev\data\' -tdf_ext '.txt' '.tdf' -map_ext '.map' -s '10.129.1.210:9200'
 ```
 
 ### Other commands
@@ -83,14 +78,14 @@ server `-s` **10.129.1.201:9200**:
 
 ```
 #!shell
-python ssa.py -indices -s '10.129.1.210:9200'
+python -m ssa -indices -s '10.129.1.210:9200'
 ```
 
 Further help available via the script:
 
 ```
 #!shell
-python ssa.py --help
+python -m ssa --help
 ```
 
 
