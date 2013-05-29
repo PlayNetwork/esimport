@@ -32,46 +32,58 @@ cd search-sync-agent
 
 
 ## Prerequisites
+Unless otherwise specified, all prerequisites can be installed using
 
-- `pyes`
+```
+#!shell
+pip install library-name
+```
+
+- [`pyes`][pyes-lib]: ElasticSearch library for Python.
+- [`requests`][requests-lib]: A simple HTTP library.  Selected over the
+  standard `urllib2` for its ease of use, excellent readability, and elegance.
 
 
 ## Script Assumptions
-- The key names are the first row of data.
+- The key names are the first row of data in the TDF file.
 - The index name is the filename minus extension.
-
+- By default, the mapping filename is the index name plus the **.map** extension
+  (may be overridden by the user with the `-map_ext` argument)
 
 ## Use
+If login credentials are required for any operation, add the arguments
+`-user 'username'` and `-pass 'password'`.
 
 ### Adding data
 - When adding data to ElasticSearch, you can optionally clear the existing
   ElasticSearch index before data is added by including the `-del` argument.
 
 Process tab-delimited data and push the contents into the `song` index of the
-ElasticSearch database located at server `-s` address 10.129.1.201:9200:
+ElasticSearch database located at server `-s` address **10.129.1.201:9200**:
 
 ```
 #!shell
 python ssa.py -f '\\skynyrd\Export\Dev\data\Song.txt' -s '10.129.1.210:9200'
 ```
 
-Process all files in a directory `-d` with the extensions `-ext` .txt and .tdf,
-and push the data into the ElasticSearch database located at server `-s`
-address 10.129.1.201:9200:
+Process each file in a directory `-d` with the extension `-tdf_ext` **.txt**
+or **.tdf**, use the file with the extension `-map_ext` **.map** as the map
+for that index, and push the data into the ElasticSearch database located at
+server `-s` address **10.129.1.201:9200**:
 
 ```
 #!shell
-python ssa.py -d '\\skynyrd\Export\Dev\data\Song.txt' -ext '.txt' '.tdf' -s '10.129.1.210:9200'
+python ssa.py -d '\\skynyrd\Export\Dev\data\' -tdf_ext '.txt' '.tdf' -map_ext '.map' -s '10.129.1.210:9200'
 ```
 
 ### Other commands
 
-Get information on ALL indices `-i` on the ElasticSearch database located at
-server `-s` 10.129.1.201:9200:
+Get information on ALL indices `-indices` on the ElasticSearch database located at
+server `-s` **10.129.1.201:9200**:
 
 ```
 #!shell
-python ssa.py -i -s '10.129.1.210:9200'
+python ssa.py -indices -s '10.129.1.210:9200'
 ```
 
 Further help available via the script:
@@ -80,3 +92,16 @@ Further help available via the script:
 #!shell
 python ssa.py --help
 ```
+
+
+## Resources
+- [Requests library documentation][requests-lib]
+- [Requests library quickstart][requests-docs]
+- [PyES on Github][pyes-lib]
+- [PyES documentation][pyes-docs]
+
+
+[pyes-lib]: https://github.com/aparo/pyes
+[pyes-docs]: http://pyes.readthedocs.org/en/latest/index.html
+[requests-lib]: http://docs.python-requests.org/en/latest/index.html
+[requests-docs]: http://docs.python-requests.org/en/latest/user/quickstart/
