@@ -104,7 +104,8 @@ def remove_bom_from_utf8(filename):
 
 
 #
-#
+# Renames data fields based on the instructions in a tab-delimited field
+# translations file.
 #
 def rename_tdf_fields(tdf_path, field_translations_path):
     # ensure the byte-order mark won't trip us up
