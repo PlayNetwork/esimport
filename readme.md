@@ -63,12 +63,13 @@ python -m ssa -f '\\skynyrd\Export\Dev\data\Song.txt' -s '10.129.1.210:9200'
 
 Process each file in a directory `-d` with the extension `-tdf_ext` **.txt**
 or **.tdf**, use the file with the extension `-map_ext` **.map** as the map
-for that index, and push the data into the ElasticSearch database located at
+for that index, use the file with the extension `-fn_ext` **.keys** to rename
+the fields, and push the data into the ElasticSearch database located at
 server `-s` address **10.129.1.201:9200**:
 
 ```
 #!shell
-python -m ssa -d '\\skynyrd\Export\Dev\data\' -tdf_ext '.txt' '.tdf' -map_ext '.map' -s '10.129.1.210:9200'
+python -m ssa -d '\\skynyrd\Export\Dev\data\' -tdf_ext '.txt' '.tdf' -map_ext '.map' -fn_ext '.keys' -s '10.129.1.210:9200'
 ```
 
 ### Other commands
@@ -90,13 +91,15 @@ python -m ssa --help
 
 
 ## Resources
-- [Requests library documentation][requests-lib]
-- [Requests library quickstart][requests-docs]
-- [PyES on Github][pyes-lib]
-- [PyES documentation][pyes-docs]
+- Python libraries
+  - `Requests`: [documentation][requests-lib] | [quickstart][requests-docs]
+  - `PyES`: [Github][pyes-lib] | [documentation][pyes-docs]
+- 4D
+  - `EXPORT DATA`: [command reference][4D-EXPORT-DATA-docs]
 
 
 [pyes-lib]: https://github.com/aparo/pyes
 [pyes-docs]: http://pyes.readthedocs.org/en/latest/index.html
 [requests-lib]: http://docs.python-requests.org/en/latest/index.html
 [requests-docs]: http://docs.python-requests.org/en/latest/user/quickstart/
+[4D-EXPORT-DATA-docs]: http://doc.4d.com/4D-Language-Reference-11.6/Import-and-Export/EXPORT-DATA.301-206065.en.html

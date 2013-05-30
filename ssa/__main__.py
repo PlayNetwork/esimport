@@ -24,9 +24,12 @@ import requests
 # Add the contents of a tab-delimited file (TDF) to an ElasticSearch database.
 #
 def add_tdf_to_elasticsearch(filename, es_server, index_name=None, \
-                             delete_preexisting_index=False, mapping=None, \
-                             es_basic_auth=None):
+                             delete_preexisting_index=False, field_translations=None, \
+                             mapping=None, es_basic_auth=None):
     remove_bom_from_utf8(filename)
+    
+    if field_translations is not None:
+        rename_tdf_fields(filename, field_translations)
     
     if index_name is None:
         filename_no_path = filename.split('\\')[-1]
@@ -101,13 +104,56 @@ def remove_bom_from_utf8(filename):
 
 
 #
+#
+#
+def rename_tdf_fields(tdf_path, field_translations_path):
+    # ensure the byte-order mark won't trip us up
+    print field_translations_path
+    remove_bom_from_utf8(field_translations_path)
+
+    field_delimiter_char = '\t'
+    
+    with open(field_translations_path, 'rb') as translations_file:
+        translations_reader = csv.DictReader(translations_file, delimiter=field_delimiter_char)
+        field_translations_dict = translations_reader.next()
+        
+    with open(tdf_path, 'rb') as f:
+        original_contents = f.read()
+            
+    # original data file is written by a Windows machine, so it uses
+    # CRLF instead of just LF
+    crlf = '\r\n'
+    tdf_data = original_contents.split(crlf)
+    
+    # grab the first line, and turn it into an array of field names
+    field_names = tdf_data[0].split(field_delimiter_char)
+    
+    # replace the original field names in the array with the new ones
+    field_name_was_changed = False  # let's be sure we're not doing unnecessary work!
+    for i in xrange(len(field_names)):
+        if field_names[i] in field_translations_dict:
+            field_names[i] = field_translations_dict[field_names[i]]
+            field_name_was_changed = True
+    
+    if field_name_was_changed:
+        # put it all back together...
+        header = field_delimiter_char.join(field_names)
+        tdf_data[0] = header
+        new_contents = crlf.join(tdf_data)
+        
+        with open(tdf_path, 'w') as f:
+            f.write(new_contents)
+
+
+
+#
 # Adds the contents of all files in a directory with the specified extension(s)
 # to an ES database.
 # Assumption: The original files are TDF format.
 #
 def add_tdfs_in_dir_to_elasticsearch(path, es_server, tdf_extensions=['.txt', '.tdf'], \
-                             mapping_extensions=['.map'], delete_preexisting_indices=False,
-                             es_basic_auth=None):
+                             mapping_extensions=['.map'], delete_preexisting_indices=False, \
+                             field_translations_extensions=None, es_basic_auth=None):
     add_all_start_time = time.time()
     
     directory = os.listdir(path)
@@ -121,25 +167,20 @@ def add_tdfs_in_dir_to_elasticsearch(path, es_server, tdf_extensions=['.txt', '.
         if f.endswith(tuple(tdf_extensions)):
             print f
             
+            index_name = f.split('.')[0]
+            
+            field_translation_path = None
+            if field_translations_extensions is not None:
+                field_translation_path = find_file_with_extension(path, index_name, field_translations_extensions)
+            
             mapping_path = None
             if mapping_extensions is not None:
-                index_name = f.split('.')[0]
-                
-                # look for a file that is the index name and ends with
-                # the provided map extension
-                for ext in mapping_extensions:
-                    print path + index_name + ext
-                    try:
-                        path_to_check = path + index_name + ext
-                        with open(path_to_check):
-                            mapping_path = path_to_check
-                            break
-                    except IOError:
-                        pass
+                mapping_path = find_file_with_extension(path, index_name, mapping_extensions)
             
             add_tdf_to_elasticsearch(path + f, es_server, \
                     delete_preexisting_index=delete_preexisting_indices, \
-                    es_basic_auth=es_basic_auth, mapping=mapping_path)
+                    es_basic_auth=es_basic_auth, mapping=mapping_path, \
+                    field_translations=field_translation_path)
             files_added_count += 1
             print ""
     
@@ -149,6 +190,26 @@ def add_tdfs_in_dir_to_elasticsearch(path, es_server, tdf_extensions=['.txt', '.
           " seconds."
 
     return files_added_count
+
+
+
+#
+# Looks for a file in a given folder that ends with one of the given extensions.
+# If no matching file can be found, returns None.
+#
+def find_file_with_extension(path, filename_base, extensions):
+    # look for a file that is the index name and ends with
+    # one of the supplied extensions
+    for ext in extensions:
+        try:
+            path_to_check = path + filename_base + ext
+            with open(path_to_check):
+                valid_path = path_to_check
+                return valid_path
+        except IOError:
+            pass
+        
+    return None
 
 
 
@@ -262,7 +323,8 @@ def set_up_argparser():
                         help="Test query to verify presence of data.")
     group.add_argument('-indices', '--get_indices', action="store_true", \
                        default=False, help="Get summary of indices.")
-
+    
+    # Extensions
     parser.add_argument('-tdf_ext', '--tdf_extensions', nargs='+', \
                         default=default_tdf_extensions, \
                         help="TDF file extensions to process when processing an \
@@ -273,6 +335,12 @@ def set_up_argparser():
                         help="Map file extensions to process when processing an \
                               entire directory.  If not specified, defaults \
                               to " + default_map_extensions_string)
+    parser.add_argument('-fn_ext', '--field_name_translations_extensions', \
+                        nargs='+', default=None, \
+                        help="Extensions of files containing field name \
+                              translations.  If not specified, no attempt at \
+                              changing field names will be made.")
+    
     parser.add_argument('-s', '--es_server', nargs=1, required=True, \
                         help="The ElasticSearch database's server and port.")
     parser.add_argument('-del', '--delete_preexisting_index', \
@@ -283,6 +351,10 @@ def set_up_argparser():
     parser.add_argument('-map', '--map_file_path', nargs=1, default=None, \
                         help="Path to file containing the desired mapping for \
                               this index.")
+    parser.add_argument('-fn', '--field_name_translations_path', nargs=1, \
+                        default=None, \
+                        help="Path to file containing field name translations \
+                              for this index.")
     
     parser.add_argument('-user', '--username', nargs=1, default=None, \
                         help="Username for ElasticSearch database.")
@@ -322,7 +394,9 @@ def main(argv):
         for f in args.files:
             add_tdf_to_elasticsearch(f, es_server, \
                     delete_preexisting_index=args.delete_preexisting_index, \
-                    mapping=args.map_file_path[0], es_basic_auth=es_basic_auth)
+                    mapping=args.map_file_path[0], \
+                    field_translations=args.field_name_translations_path[0], \
+                    es_basic_auth=es_basic_auth)
         
         friendly_list_of_ops.append("adding " + str(len(args.files)) + \
                                     " file(s) to the ElasticSearch database")
@@ -332,7 +406,9 @@ def main(argv):
         for d in args.dirs:
             files_converted += add_tdfs_in_dir_to_elasticsearch(d, \
                     es_server, tdf_extensions=args.tdf_extensions, \
-                    delete_preexisting_indices=args.delete_preexisting_index, es_basic_auth=es_basic_auth)
+                    field_translations_extensions=args.field_name_translations_extensions, \
+                    es_basic_auth=es_basic_auth, \
+                    delete_preexisting_indices=args.delete_preexisting_index)
 
         friendly_list_of_ops.append("adding " + str(files_converted) + \
                 " files in " + str(len(args.dirs)) + " directories to the \
