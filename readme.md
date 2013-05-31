@@ -180,7 +180,8 @@ genre	albumToken	ISRC	recordCompany	artistPrint	songToken	durationInSeconds	titl
 
 The data export method may be called by:
 
-- a recurring task (recurrence TBD, if any)
+- within Conductor's internal Task Manager, a recurring task (recurrence TBD,
+  if any)
 - a SOAP call to `ws_ExportData` (input: path to the desired data export
   location, or an empty string if the default location is acceptable)
 
