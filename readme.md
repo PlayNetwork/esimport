@@ -216,7 +216,9 @@ The data export method may be called by:
 
 ### Data Export Method: `store_task_ExportDataSearchSync`
 
-May be called as a task by Conductor or by ws_ExportData via web service call.
+May be called as a task by Conductor or by `ws_ExportData` via web service call.
+Unless otherwise specified, data will be exported to the
+`\\Skynyrd\Export\[Dev|Staging|Conductor]\data\` folder.
 
 ```
   ` ----------------------------------------------------
