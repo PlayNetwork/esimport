@@ -192,6 +192,10 @@ To run the data export, you will first need to create some export project templa
 6. On the Header tab, check the "Column header" box.
 7. On the Delimiters tab, select "Tab" from the "end of Field" dropdown.
 8. Use the "Save Settings" button to export the template as a .4SI file.
+  - **Important**: You MUST name the template file to match the name of the Conductor table!
+    For example, `Record_Co.4SI`.
+  - **Important**: You MUST save the template files in the
+    `\\Skynyrd\Export\[Dev|Staging|Conductor]\projects\` folder!
 
 The data export method may be called by:
 
