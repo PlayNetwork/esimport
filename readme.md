@@ -178,12 +178,28 @@ genre	albumToken	ISRC	recordCompany	artistPrint	songToken	durationInSeconds	titl
 
 ## Conductor Data Export
 
+To run the data export, you will first need to create some export project template files.
+
+1. Log into Conductor as a Design user.  (See Jesse or Allison.)
+2. Change to Design mode.  (Hold down Alt+Shift and right-click anywhere in the
+   4D window.  From the popup menu, select "Go to Design mode".)
+3. From the File menu, select Export > Data to File...
+4. Choose a table from the "Export from Table" dropdown and double-click on each
+   of your fields of interest listed to add them to your export project template.
+5. On the File tab, ensure the format selected is "Text" and "Windows File", and
+   select "Export Selection" (NOT "Export all Records", so the template doesn't
+   have to be changed when we start exporting updates instead of all records).
+6. On the Header tab, check the "Column header" box.
+7. On the Delimiters tab, select "Tab" from the "end of Field" dropdown.
+8. Use the "Save Settings" button to export the template as a .4SI file.
+
 The data export method may be called by:
 
-- within Conductor's internal Task Manager, a recurring task (recurrence TBD,
-  if any)
+- a recurring task (recurrence TBD, if any) set up within Conductor's internal
+  Task Manager
 - a SOAP call to `ws_ExportData` (input: path to the desired data export
   location, or an empty string if the default location is acceptable)
+
 
 ### WDSL Locations
 
@@ -193,7 +209,11 @@ The data export method may be called by:
 - Production: [http://young:8080/4DWSDL/](http://young:8080/4DWSDL/) (data
   export method NOT yet available; will be deployed with Conductor 8.10 release)
 
+
 ### Data Export Method: `store_task_ExportDataSearchSync`
+
+May be called as a task by Conductor or by ws_ExportData via web service call.
+
 ```
   ` ----------------------------------------------------
   ` User name (OS): awintrip
