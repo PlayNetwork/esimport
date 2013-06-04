@@ -308,60 +308,74 @@ def set_up_argparser():
 
     parser = argparse.ArgumentParser(description='Process TDF files and add \
                                      them to an ElasticSearch database.')
-
-    group = parser.add_mutually_exclusive_group(required=True)
-
-    # mutually exclusive group
-    group.add_argument('-f', '--files', nargs='+', \
-                       help="TDF files that need to be added to ElasticSearch.")
-    group.add_argument('-d', '--dirs', nargs='+', \
-                       help="Directories containing TDF files that need to be \
-                             added to ElasticSearch.  If -ext is not \
-                             specified, only files ending in " + \
-                             default_tdf_extensions_string + " will be processed.")
-    group.add_argument('-test', '--run_test', \
-                        action="store_true", default=False, \
-                        help="Test query to verify presence of data.")
-    group.add_argument('-indices', '--get_indices', action="store_true", \
-                       default=False, help="Get summary of indices.")
+    subparsers = parser.add_subparsers(help="sub-command help", dest='command')
     
-    # Extensions
-    parser.add_argument('-tdf_ext', '--tdf_extensions', nargs='+', \
-                        default=default_tdf_extensions, \
-                        help="TDF file extensions to process when processing an \
-                              entire directory.  If not specified, defaults \
-                              to " + default_tdf_extensions_string)
-    parser.add_argument('-map_ext', '--map_extensions', nargs='+', \
-                        default=default_map_extensions, \
-                        help="Map file extensions to process when processing an \
-                              entire directory.  If not specified, defaults \
-                              to " + default_map_extensions_string)
-    parser.add_argument('-fn_ext', '--field_name_translations_extensions', \
-                        nargs='+', default=None, \
-                        help="Extensions of files containing field name \
-                              translations.  If not specified, no attempt at \
-                              changing field names will be made.")
+    # parent parser for ALL subparsers; contains commands ALL can use
+    universal_parent = argparse.ArgumentParser(add_help=False)
+    universal_parent.add_argument('-s', '--es_server', nargs=1, required=True, \
+                          help="The ElasticSearch database's server and port.")
+    universal_parent.add_argument('-user', '--username', nargs=1, default=None, \
+                                  help="Username for ElasticSearch database.")
+    universal_parent.add_argument('-pass', '--password', nargs=1, default=None, \
+                                  help="Password for ElasticSearch database.")
     
-    parser.add_argument('-s', '--es_server', nargs=1, required=True, \
-                        help="The ElasticSearch database's server and port.")
-    parser.add_argument('-del', '--delete_preexisting_index', \
-                        action="store_true", default=False, \
-                        help="Before adding docs to an index, delete the index \
-                              if it already exists.")
-
-    parser.add_argument('-map', '--map_file_path', nargs=1, default=None, \
-                        help="Path to file containing the desired mapping for \
-                              this index.")
-    parser.add_argument('-fn', '--field_name_translations_path', nargs=1, \
-                        default=None, \
-                        help="Path to file containing field name translations \
-                              for this index.")
+    # parent parser for the files and dirs subparsers
+    processors_parent = argparse.ArgumentParser(add_help=False)
+    processors_parent.add_argument('-del', '--delete_preexisting_index', \
+                                   action="store_true", default=False, \
+                                   help="Before adding docs to an index, delete \
+                                         the index if it already exists.")
     
-    parser.add_argument('-user', '--username', nargs=1, default=None, \
-                        help="Username for ElasticSearch database.")
-    parser.add_argument('-pass', '--password', nargs=1, default=None, \
-                        help="Password for ElasticSearch database.")
-
+    # set up parser for commands related to processing a set of data
+    tdf_files_parser = subparsers.add_parser('file', help='file help', \
+                                             parents=[universal_parent, \
+                                                      processors_parent])
+    tdf_files_parser.add_argument('-f', '--filename', nargs=1, \
+                                  help="TDF file that needs to be added to \
+                                        ElasticSearch.")
+    tdf_files_parser.add_argument('-map', '--map_file_path', nargs=1, default=None, \
+                                  help="Path to file containing the desired \
+                                        mapping for this type.")
+    tdf_files_parser.add_argument('-fn', '--field_name_translations_path', \
+                                  nargs=1, default=None, \
+                                  help="Path to file containing field name \
+                                        translations for this type.")
+    
+    # set up parser for commands related to processing an entire directory
+    dirs_parser = subparsers.add_parser('dirs', help='dirs help', \
+                                        parents=[universal_parent, \
+                                                 processors_parent])
+    dirs_parser.add_argument('-d', '--dirs', nargs='+', \
+                             help="Directories containing TDF files that need \
+                                   to be added to ElasticSearch.  If -ext is \
+                                   not specified, only files ending in " + \
+                                   default_tdf_extensions_string + \
+                                   " will be processed.")
+    dirs_parser.add_argument('-tdf_ext', '--tdf_extensions', nargs='+', \
+                             default=default_tdf_extensions, \
+                             help="TDF file extensions to process when \
+                                   processing an entire directory.  If not \
+                                   specified, defaults to " + \
+                                   default_tdf_extensions_string)
+    dirs_parser.add_argument('-map_ext', '--map_extensions', nargs='+', \
+                             default=default_map_extensions, \
+                             help="Map file extensions to process when \
+                                   processing an entire directory.  If not \
+                                   specified, defaults to " + \
+                                   default_map_extensions_string)
+    dirs_parser.add_argument('-fn_ext', '--field_name_translations_extensions', \
+                             nargs='+', default=None, \
+                             help="Extensions of files containing field name \
+                                   translations.  If not specified, no attempt \
+                                   at changing field names will be made.")
+    
+    test_parser = subparsers.add_parser('test', parents=[universal_parent], \
+                                        help='Test query to verify presence \
+                                              of data.')
+    
+    indices_parser = subparsers.add_parser('indices', parents=[universal_parent], \
+                                           help='Get summary of indices.')
+    
     return parser.parse_args()
 
 
@@ -388,39 +402,41 @@ def main(argv):
     es_basic_auth = None
     
     if args.username is not None and args.password is not None:
-        es_basic_auth = { 'username': args.username,
-                          'password': args.password }
-
-    if args.files is not None:
-        for f in args.files:
-            add_tdf_to_elasticsearch(f, es_server, \
-                    delete_preexisting_index=args.delete_preexisting_index, \
-                    mapping=args.map_file_path[0], \
-                    field_translations=args.field_name_translations_path[0], \
-                    es_basic_auth=es_basic_auth)
+        es_basic_auth = { 'username': args.username[0],
+                          'password': args.password[0] }
+    
+    if args.command == 'file':
+        if args.filename is not None:
+            add_tdf_to_elasticsearch(args.filename[0], es_server, \
+                delete_preexisting_index=args.delete_preexisting_index, \
+                mapping=args.map_file_path[0], \
+                field_translations=args.field_name_translations_path[0], \
+                es_basic_auth=es_basic_auth)
         
-        friendly_list_of_ops.append("adding " + str(len(args.files)) + \
-                                    " file(s) to the ElasticSearch database")
+            friendly_list_of_ops.append("adding file to the ElasticSearch database")
+        
+    elif args.command == 'dirs':
+        if args.dirs is not None:
+            files_converted = 0
+            for d in args.dirs:
+                files_converted += add_tdfs_in_dir_to_elasticsearch(d, \
+                        es_server, tdf_extensions=args.tdf_extensions, \
+                        field_translations_extensions=args.field_name_translations_extensions, \
+                        es_basic_auth=es_basic_auth, \
+                        delete_preexisting_indices=args.delete_preexisting_index)
 
-    if args.dirs is not None:
-        files_converted = 0
-        for d in args.dirs:
-            files_converted += add_tdfs_in_dir_to_elasticsearch(d, \
-                    es_server, tdf_extensions=args.tdf_extensions, \
-                    field_translations_extensions=args.field_name_translations_extensions, \
-                    es_basic_auth=es_basic_auth, \
-                    delete_preexisting_indices=args.delete_preexisting_index)
-
-        friendly_list_of_ops.append("adding " + str(files_converted) + \
+            friendly_list_of_ops.append("adding " + str(files_converted) + \
                 " files in " + str(len(args.dirs)) + " directories to the \
-                 ElasticSearch database")
+                ElasticSearch database")
 
-    if args.run_test == True:
-        test_es(es_server, es_basic_auth=es_basic_auth)
-        friendly_list_of_ops.append("running a test query on the ES database")
+    elif args.command == 'test':
+        if es_server is not None:
+            test_es(es_server, es_basic_auth=es_basic_auth)
+            friendly_list_of_ops.append("running a test query on the ES database")
 
-    if args.get_indices == True:
-        print pyes.ES(es_server).get_indices()
+    elif args.command == 'indices':
+        if es_server is not None:
+            print pyes.ES(es_server).get_indices()
 
     operation_elapsed_time = time.time() - operation_start_time
 
@@ -449,3 +465,4 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv[1:])
+
