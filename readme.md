@@ -60,7 +60,7 @@ ElasticSearch database located at server `-s` address **10.129.1.201:9200**:
 
 ```
 #!shell
-python -m ssa -f '\\skynyrd\Export\Dev\data\Song.txt' -s '10.129.1.210:9200'
+python -m ssa file -f '\\skynyrd\Export\Dev\data\Song.txt' -s '10.129.1.210:9200'
 ```
 
 Process each file in a directory `-d` with the extension `-tdf_ext` **.txt**
@@ -71,17 +71,17 @@ server `-s` address **10.129.1.201:9200**:
 
 ```
 #!shell
-python -m ssa -d '\\skynyrd\Export\Dev\data\' -tdf_ext '.txt' '.tdf' -map_ext '.map' -fn_ext '.keys' -s '10.129.1.210:9200'
+python -m ssa dirs -d '\\skynyrd\Export\Dev\data\' -tdf_ext '.txt' '.tdf' -map_ext '.map' -fn_ext '.keys' -s '10.129.1.210:9200'
 ```
 
 ### Other commands
 
-Get information on ALL indices `-indices` on the ElasticSearch database located at
+Get information on ALL indices on the ElasticSearch database located at
 server `-s` **10.129.1.201:9200**:
 
 ```
 #!shell
-python -m ssa -indices -s '10.129.1.210:9200'
+python -m ssa indices -s '10.129.1.210:9200'
 ```
 
 Further help available via the script:
