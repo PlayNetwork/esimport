@@ -53,25 +53,28 @@ If login credentials are required for any operation, add the arguments
 
 ### Adding data
 - When adding data to ElasticSearch, you can optionally clear the existing
-  ElasticSearch index before data is added by including the `-del` argument.
+  ElasticSearch index before data is added by including the `-rmi` argument.
+- Likewise, everything of a certain type under the index can be removed by
+  including the `-rmi` argument.
 
-Process tab-delimited data and push the contents into the `song` index of the
-ElasticSearch database located at server `-s` address **10.129.1.201:9200**:
+Process tab-delimited data and push the contents into the 'conductor' index
+`-i` of the ElasticSearch database located at server `-s` address
+**10.129.1.201:9200**:
 
 ```
 #!shell
-python -m ssa file -f '\\skynyrd\Export\Dev\data\Song.txt' -s '10.129.1.210:9200'
+python -m ssa file -f '\\skynyrd\Export\Dev\data\Song.txt' -i 'conductor' -s '10.129.1.210:9200'
 ```
 
 Process each file in a directory `-d` with the extension `-tdf_ext` **.txt**
 or **.tdf**, use the file with the extension `-map_ext` **.map** as the map
 for that index, use the file with the extension `-fn_ext` **.keys** to rename
-the fields, and push the data into the ElasticSearch database located at
-server `-s` address **10.129.1.201:9200**:
+the fields, and push the data into the 'conductor' index `-i` of the
+ElasticSearch database located at server `-s` address **10.129.1.201:9200**:
 
 ```
 #!shell
-python -m ssa dirs -d '\\skynyrd\Export\Dev\data\' -tdf_ext '.txt' '.tdf' -map_ext '.map' -fn_ext '.keys' -s '10.129.1.210:9200'
+python -m ssa dirs -d '\\skynyrd\Export\Dev\data\' -tdf_ext '.txt' '.tdf' -map_ext '.map' -fn_ext '.keys' -i 'conductor' -s '10.129.1.210:9200'
 ```
 
 ### Other commands
@@ -93,9 +96,17 @@ python -m ssa --help
 
 
 ## Data Support Files
-If bulk-importing all data in a directory, you will need to use the
+
+### Bulk Imports
+If you wish to use index names other than the default (file name minus
+extension) while bulk-importing.  To do this, add the `-tp` argument followed
+by the path to a TDF file.  The first row of this file should consist of the
+original data set names *in lowercase* and separated by tabs; the second,
+the new names, again separated by tabs.
+
+If bulk-importing all data in a directory, you will also need to use the
 `index_name.ext` naming convention.
-    
+
 For example:
 
 - `Song.txt`: data file (tab-delimited)
