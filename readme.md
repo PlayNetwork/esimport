@@ -95,6 +95,24 @@ python -m ssa --help
 ```
 
 
+## Removing Old Data
+
+To remove old data (for example, an outdated 'song' index), use:
+
+```
+#!shell
+curl -XDELETE 'http://localhost:9200/song'
+```
+
+If you want to remove a particular type in an index - for example, all documents
+of type 'timezones' in the 'conductor' index - use:
+
+```
+#!shell
+curl -XDELETE 'http://localhost:9200/conductor/timezones'
+```
+
+
 ## Data Support Files
 
 ### Bulk Imports
