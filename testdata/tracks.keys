@@ -1,0 +1,2 @@
+Alb_Category	Album_ID	Album_Title_Display	ISRC	Record_Co	SongArtAlpha	SongArtPrint	Song_ID_pk	Song_Secs	Song_Title
+genre	albumToken	titleDisplay	ISRC	recordCompany	artistAlpha	artistPrint	trackToken	durationInSeconds	title

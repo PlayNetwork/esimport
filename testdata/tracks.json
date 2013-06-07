@@ -1,0 +1,39 @@
+{
+  "songs" : {
+    "properties" : {
+      "genre" : {
+        "type" : "string"
+      },
+      "albumToken" : {
+        "type" : "integer"
+      },
+      "titleDisplay" : {
+        "type" : "string"
+      },
+      "ISRC" : {
+        "type" : "string"
+      },
+      "recordCompany" : {
+        "type" : "string"
+      },
+      "artistAlpha" : {
+        "type" : "string"
+      },
+      "artistPrint" : {
+        "type" : "string"
+      },
+      "trackToken" : {
+        "type" : "integer"
+      },
+      "durationInSeconds" : {
+        "type" : "integer"
+      },
+      "title" : {
+        "type" : "string"
+      }
+    },
+    "_timestamp" : {
+      "enabled" : true
+    }
+  }
+}

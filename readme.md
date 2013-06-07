@@ -39,13 +39,9 @@ All dependencies are noted in setup.py and can be installed via the following co
 python setup.py develop
 ```
 
-
 ## Script Assumptions
 - The key names are the first row of data in the TDF file.
-- The index name is the filename minus extension.
-- By default, the mapping filename is the index name plus the **.map** extension
-  (may be overridden by the user with the `-map_ext` argument)
-
+- The index name, if not specified on command line, is defaulted to the filename minus extension.
 
 ## Use
 If login credentials are required for any operation, add the arguments
@@ -53,9 +49,7 @@ If login credentials are required for any operation, add the arguments
 
 ### Adding data
 - When adding data to ElasticSearch, you can optionally clear the existing
-  ElasticSearch index before data is added by including the `-rmi` argument.
-- Likewise, everything of a certain type under the index can be removed by
-  including the `-rmi` argument.
+  ElasticSearch index before data is added by including the `-rm` argument.
 
 Process tab-delimited data and push the contents into the 'conductor' index
 `-i` of the ElasticSearch database located at server `-s` address
@@ -63,29 +57,10 @@ Process tab-delimited data and push the contents into the 'conductor' index
 
 ```
 #!shell
-python -m ssa file -f '\\skynyrd\Export\Dev\data\Song.txt' -i 'conductor' -s '10.129.1.210:9200'
-```
-
-Process each file in a directory `-d` with the extension `-tdf_ext` **.txt**
-or **.tdf**, use the file with the extension `-map_ext` **.map** as the map
-for that index, use the file with the extension `-fn_ext` **.keys** to rename
-the fields, and push the data into the 'conductor' index `-i` of the
-ElasticSearch database located at server `-s` address **10.129.1.201:9200**:
-
-```
-#!shell
-python -m ssa dirs -d '\\skynyrd\Export\Dev\data\' -tdf_ext '.txt' '.tdf' -map_ext '.map' -fn_ext '.keys' -i 'conductor' -s '10.129.1.210:9200'
+python -m ssa -f '\\skynyrd\Export\Dev\data\Song.txt' -i 'conductor' -s '10.129.1.210:9200'
 ```
 
 ### Other commands
-
-Get information on ALL indices on the ElasticSearch database located at
-server `-s` **10.129.1.201:9200**:
-
-```
-#!shell
-python -m ssa indices -s '10.129.1.210:9200'
-```
 
 Further help available via the script:
 
@@ -93,25 +68,6 @@ Further help available via the script:
 #!shell
 python -m ssa --help
 ```
-
-
-## Removing Old Data
-
-To remove old data (for example, an outdated 'song' index), use:
-
-```
-#!shell
-curl -XDELETE 'http://localhost:9200/song'
-```
-
-If you want to remove a particular type in an index - for example, all documents
-of type 'timezones' in the 'conductor' index - use:
-
-```
-#!shell
-curl -XDELETE 'http://localhost:9200/conductor/timezones'
-```
-
 
 ## Data Support Files
 
@@ -153,38 +109,38 @@ Maps should be provided in JSON format, as seen below and on the ElasticSearch w
 ```
 {
   "song" : {
-    "properties" : {
-      "genre" : {
-        "type" : "string"
-      },
-      "albumToken" : {
-        "type" : "integer"
-      },
-      "titleDisplay" : {
-        "type" : "string"
-      },
-      "ISRC" : {
-        "type" : "string"
-      },
-      "recordCompany" : {
-        "type" : "string"
-      },
-      "artistAlpha" : {
-        "type" : "string"
-      },
-      "artistPrint" : {
-        "type" : "string"
-      },
-      "songToken" : {
-        "type" : "integer"
-      },
-      "durationInSeconds" : {
-        "type" : "integer"
-      },
-      "title" : {
-        "type" : "string"
-      }
-    }
+	"properties" : {
+	  "genre" : {
+		"type" : "string"
+	  },
+	  "albumToken" : {
+		"type" : "integer"
+	  },
+	  "titleDisplay" : {
+		"type" : "string"
+	  },
+	  "ISRC" : {
+		"type" : "string"
+	  },
+	  "recordCompany" : {
+		"type" : "string"
+	  },
+	  "artistAlpha" : {
+		"type" : "string"
+	  },
+	  "artistPrint" : {
+		"type" : "string"
+	  },
+	  "songToken" : {
+		"type" : "integer"
+	  },
+	  "durationInSeconds" : {
+		"type" : "integer"
+	  },
+	  "title" : {
+		"type" : "string"
+	  }
+	}
   }
 }
 ```
@@ -222,9 +178,9 @@ To run the data export, you will first need to create some export project templa
 7. On the Delimiters tab, select "Tab" from the "end of Field" dropdown.
 8. Use the "Save Settings" button to export the template as a .4SI file.
   - **Important**: You MUST name the template file to match the name of the Conductor table!
-    For example, `Record_Co.4SI`.
+	For example, `Record_Co.4SI`.
   - **Important**: You MUST save the template files in the
-    `\\Skynyrd\Export\[Dev|Staging|Conductor]\projects\` folder!
+	`\\Skynyrd\Export\[Dev|Staging|Conductor]\projects\` folder!
 
 The data export method may be called by:
 
@@ -256,7 +212,7 @@ Unless otherwise specified, data will be exported to the
   ` ----------------------------------------------------
   ` Method: store_task_ExportDataSearchSync
   ` Description
-  ` 
+  `
   ` Project filename format (do not include brackets):
   `     [TableName].4SI
   `
@@ -296,38 +252,38 @@ $bUseDefaultExportPath:=False
 
 If (Count parameters=0)
 	$bUseDefaultExportPath:=True
-Else 
+Else
 	If ($1#"")
 		$bUseDefaultExportPath:=True
-	End if 
-End if 
+	End if
+End if
 
 $tExportBasepath:=pref_GetPreferenceValue ("Data Export Project Template Files")
 
 If (Test path name($tExportBasepath)#Is a directory )
 	CREATE FOLDER($tExportBasepath)
-End if 
+End if
 
   ` now add in env-specific folder...
 $tExportBasepath:=$tExportBasepath+pref_GetPreferenceValue ("Environment")+"\\"
 If (Test path name($tExportBasepath)#Is a directory )
 	CREATE FOLDER($tExportBasepath)
-End if 
+End if
 
 $tProjectFolderPath:=$tExportBasepath+"projects\\"
 If (Test path name($tProjectFolderPath)#Is a directory )
 	CREATE FOLDER($tProjectFolderPath)
-End if 
+End if
 
 If ($bUseDefaultExportPath)
 	$tDataFolderPath:=$tExportBasepath+"data\\"
-Else 
+Else
 	$tDataFolderPath:=$1
-End if 
+End if
 
 If (Test path name($tDataFolderPath)#Is a directory )
 	CREATE FOLDER($tDataFolderPath)
-End if 
+End if
 
   ` get the list of files in the specified folder
 ARRAY TEXT($atDocNames;0)
@@ -344,64 +300,64 @@ C_LONGINT($i)
 For ($i;1;Size of array($atDocNames))
 	C_TEXT($tFilename)
 	$tFilename:=$atDocNames{$i}
-	
+
 	  ` get the last n chars of the filename, where n is the length of the
 	  ` expected extension; +1 because 4D starts index at 1
 	$tProjExtensionActual:=Substring($tFilename;Length($tFilename)-Length($tProjExtensionExpected)+1)
-	
+
 	  ` only attempt to process it if the extension is what we expect
 	If ($tProjExtensionActual=$tProjExtensionExpected)
 		C_TEXT($tTableName)  ` remove extension from filename to get table name
 		$tTableName:=Substring($tFilename;1;Length($tFilename)-Length($tProjExtensionExpected))
-		
+
 		C_POINTER($pTable)
-		
+
 		  ` because sh_GetTablePtrFromTableName doesn't have any error handling,
 		  ` and it's silly to let this task break over a typo
 		ON ERR CALL("err_GeneralErrorHandler")
 		$pTable:=sh_GetTablePtrFromTableName ($tTableName)
 		ON ERR CALL("")
-		
+
 		  ` if we have a valid pointer to a table (i.e. pointer is not null/"nil"), run the export
 		If (Not(Nil($pTable)))
 			<>gMsg:="Exporting data from the "+$tTableName+" table for report "+$tFilename+"..."
-			
+
 			  ` ensure we're in read-only state within this process; that
 			  ` MIGHT squeeze a bit more performance out of this.
 			C_BOOLEAN($bIsAlreadyReadOnly)
 			$bIsAlreadyReadOnly:=Read only state($pTable->)
 			If (Not($bIsAlreadyReadOnly))
 				READ ONLY($pTable->)
-			End if 
-			
+			End if
+
 			ALL RECORDS($pTable->)
-			
+
 			C_TEXT($tProjectFullPath)
 			$tProjectFullPath:=$tProjectFolderPath+$tFilename
-			
+
 			C_BLOB($exportParams)  ` Beware of The BLOB, it creeps, and leaps...
 			DOCUMENT TO BLOB($tProjectFullPath;$exportParams)
-			
+
 			C_TEXT($tDataFilename;$tDataFileFullPath)
 			$tDataFilename:=$tTableName+".txt"
 			$tDataFileFullPath:=$tDataFolderPath+$tDataFilename
-			
+
 			EXPORT DATA($tDataFileFullPath;$exportParams)
-			
+
 			  ` if the table wasn't in read-only state within this process
 			  ` when we started, set it back to read/write
 			If (Not($bIsAlreadyReadOnly))
 				READ WRITE($pTable->)
-			End if 
-			
-		Else 
+			End if
+
+		Else
 			  ` TODO: Might want to add some code here later to write an error
 			  ` doc; don't want to have to check 4D for errors.  Not required
 			  ` right now though.
 			  ` akw 05/13/2013
-		End if 
-	End if 
-End for 
+		End if
+	End if
+End for
 
 <>gMsg:=""
 
@@ -417,9 +373,9 @@ $0:=False  `this is a scheduled task, so $0=done.  It should always return done:
   - `EXPORT DATA`: [command reference][4D-EXPORT-DATA-docs]
 - ElasticSearch
   - [Windows installers][ES-windows-installers]: What's special about this is
-    that it already has ES packaged up to run as a service.  The official ES
-    website provides instructions on how to run ES as a service, but it requires
-    a separate download and extra setup time.  This is a nice timesaver.
+	that it already has ES packaged up to run as a service.  The official ES
+	website provides instructions on how to run ES as a service, but it requires
+	a separate download and extra setup time.  This is a nice timesaver.
   - Mapping: [reference][ES-mapping-doc]
 
 
