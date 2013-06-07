@@ -124,6 +124,10 @@ def translate_fields(data_lines, field_translations_path):
 
 
 
+#
+# Filters the fields within a Dictionary and maps them to the specified
+# fieldvalue names
+#
 def data_filter(it, keys, fieldvalues):
     for d in it:
         yield dict((fieldvalues[keys.index(k)], d[k]) for k in keys)

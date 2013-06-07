@@ -50,7 +50,7 @@ def ensure_mapping(index_name, type_name, mapping, es):
 # https://github.com/humangeo/rawes#usage
 #
 def get_es(es_server, username, password):
-	return rawes.Elastic(es_server, auth=(username, password))
+	return rawes.Elastic(es_server, auth=(username, password), verify=False)
 
 
 
