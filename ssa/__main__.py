@@ -43,12 +43,7 @@ def import_data(filename, \
 
     if len(data_lines) < 2:
         print "there is no data to import"
-        sys.exit(0)
-
-    fieldnames = data_lines.pop(0).split("\t")
-
-    if field_translations is not None:
-        fieldnames = translate_headers(fieldnames, field_translations)
+        return
 
     if type_name is None:
         # bugfix
@@ -74,15 +69,19 @@ def import_data(filename, \
         mapping_def = importfile_util.retrieve_file(mapping)
         es_proxy.ensure_mapping(index_name, type_name, mapping_def, es)
 
-
     if is_index_ready:
         current_count = 0
         current_status = 0
         start_time = time.time()
         total_count = len(data_lines)
 
+        # translate if applicable and then retrieve the field names
+        if field_translations is not None:
+            reader = translate_fields(data_lines, field_translations)
+        else:
+            reader = csv.DictReader(data_lines, delimiter="\t")
+
         print "importing " + str(total_count) + " records from " + filename
-        reader = csv.DictReader(data_lines, delimiter="\t", fieldnames=fieldnames)
         for doc in reader:
             es_proxy.index_doc(doc, index_name, type_name, es)
 
@@ -111,19 +110,23 @@ def import_data(filename, \
 # Returns list of field names based on the instructions in a tab-delimited field
 # translations file.
 #
-def translate_headers(fieldnames, field_translations_path):
+def translate_fields(data_lines, field_translations_path):
+    reader = csv.DictReader(data_lines, delimiter="\t")
     fieldtranslation_lines = importfile_util.retrieve_file_lines(field_translations_path)
 
     if len(fieldtranslation_lines) < 2:
-        return fieldnames
+        return reader
 
-    original_fieldnames = fieldtranslation_lines[0].split("\t")
-    new_fieldnames = fieldtranslation_lines[1].split("\t")
+    fieldname_keys = fieldtranslation_lines[0].split("\t")
+    fieldname_values = fieldtranslation_lines[1].split("\t")
 
-    for i, field in enumerate(fieldnames):
-        fieldnames[i] = new_fieldnames[original_fieldnames.index(field)]
+    return data_filter(reader, fieldname_keys, fieldname_values)
 
-    return fieldnames
+
+
+def data_filter(it, keys, fieldvalues):
+    for d in it:
+        yield dict((fieldvalues[keys.index(k)], d[k]) for k in keys)
 
 
 

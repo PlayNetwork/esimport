@@ -1,39 +1,33 @@
 {
-  "songs" : {
-    "properties" : {
-      "genre" : {
-        "type" : "string"
-      },
-      "albumToken" : {
-        "type" : "integer"
-      },
-      "titleDisplay" : {
-        "type" : "string"
-      },
-      "ISRC" : {
-        "type" : "string"
-      },
-      "recordCompany" : {
-        "type" : "string"
-      },
-      "artistAlpha" : {
-        "type" : "string"
-      },
-      "artistPrint" : {
-        "type" : "string"
-      },
-      "trackToken" : {
-        "type" : "integer"
-      },
-      "durationInSeconds" : {
-        "type" : "integer"
-      },
-      "title" : {
-        "type" : "string"
-      }
-    },
-    "_timestamp" : {
-      "enabled" : true
-    }
-  }
+	"songs" : {
+		"properties" : {
+			"trackToken" : {
+				"type" : "integer"
+			},
+			"genre" : {
+				"type" : "string"
+			},
+			"artist" : {
+				"type" : "string"
+			},
+			"album" : {
+				"type" : "string"
+			},
+			"title" : {
+				"type" : "string"
+			},
+			"ISRC" : {
+				"type" : "string"
+			},
+			"recordCompany" : {
+				"type" : "string"
+			},
+			"durationInSeconds" : {
+				"type" : "integer"
+			}
+		},
+		"_timestamp" : {
+			"enabled" : true
+		}
+	}
 }
