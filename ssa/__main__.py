@@ -12,7 +12,8 @@ import importfile_util
 
 
 
-BULKINDEX_COUNT=1000
+BULKINDEX_COUNT = 1000
+DELIMITER_TAB = "\t"
 
 
 
@@ -31,41 +32,39 @@ def import_data(filename, \
     data_lines = importfile_util.retrieve_file_lines(filename)
 
     if len(data_lines) < 2:
-        print "there is no data to import"
+        print "there is no data to import in " + filename
         return
 
     if type_name is None:
-        # bugfix
+        # bugfix - previous code assumed windows file paths
         #filename_no_path = filename.split('\\')[-1]
-        # above code assumes windows file locations
         filename_no_path = os.path.basename(filename)
         type_name = filename_no_path.split('.')[0].lower()
-        print "setting document type to \"" + type_name + "\""
 
     if index_name is None:
         index_name = type_name
-        print "setting index name to \"" + index_name + "\""
 
     es = es_proxy.get_es(es_server, username, password)
-    is_index_ready = es_proxy.ensure_index(index_name, es)
+    full_url = es_server + "/" + index_name + "/" + type_name
+    index_exists = es_proxy.ensure_index(index_name, es)
 
     if delete_preexisting_type:
-        print "clearing existing documents from index"
+        print "clearing existing documents from " + full_url
         es_proxy.clear_documents(index_name, type_name, es)
 
     if mapping is not None:
-        print "applying mapping from " + mapping + " to ES"
+        print "applying mapping from " + mapping + " to " + full_url
         mapping_def = importfile_util.retrieve_file(mapping)
         es_proxy.ensure_mapping(index_name, type_name, mapping_def, es)
 
-    if is_index_ready:
+    if index_exists:
         start_time = time.time()
 
         # translate field names if applicable
         if field_translations is not None:
             reader = translate_fields(data_lines, field_translations)
         else:
-            reader = csv.DictReader(data_lines, delimiter="\t")
+            reader = csv.DictReader(data_lines, delimiter=DELIMITER_TAB)
 
         # closure for displaying status of operation
         def show_status(current_count, total_count):
@@ -73,8 +72,8 @@ def import_data(filename, \
             sys.stdout.write("\rCurrent Status: %d%%" %current_status)
             sys.stdout.flush()
 
-        print "importing data into ES at " + es_server + " from file " + filename
-        es_proxy.bulk_index_doc(reader, \
+        print "importing data into " + full_url + " from file " + filename
+        es_proxy.bulk_index_docs(reader, \
             index_name, \
             type_name, \
             es, \
@@ -87,7 +86,7 @@ def import_data(filename, \
         print " operation completed in " + str(end_time) + " seconds"
 
     else:
-        print "index on ES at " + es_server + " was not ready for import"
+        print "index at " + es_server + "/" + index_name + " can't be written to"
 
     return
 
@@ -98,26 +97,23 @@ def import_data(filename, \
 # translations file.
 #
 def translate_fields(data_lines, field_translations_path):
-    reader = csv.DictReader(data_lines, delimiter="\t")
+    reader = csv.DictReader(data_lines, delimiter=DELIMITER_TAB)
     fieldtranslation_lines = importfile_util.retrieve_file_lines(field_translations_path)
 
     if len(fieldtranslation_lines) < 2:
         return reader
 
-    fieldname_keys = fieldtranslation_lines[0].split("\t")
-    fieldname_values = fieldtranslation_lines[1].split("\t")
+    fieldname_keys = fieldtranslation_lines[0].split(DELIMITER_TAB)
+    fieldname_values = fieldtranslation_lines[1].split(DELIMITER_TAB)
+
+    # Filters the fields within a Dictionary and maps them to the specified
+    # fieldvalue names so that only fields specified in the field translations
+    # document are returned
+    def data_filter(it, keys, fieldvalues):
+        for d in it:
+            yield dict((fieldvalues[keys.index(k)], d[k]) for k in keys)
 
     return data_filter(reader, fieldname_keys, fieldname_values)
-
-
-
-#
-# Filters the fields within a Dictionary and maps them to the specified
-# fieldvalue names
-#
-def data_filter(it, keys, fieldvalues):
-    for d in it:
-        yield dict((fieldvalues[keys.index(k)], d[k]) for k in keys)
 
 
 
