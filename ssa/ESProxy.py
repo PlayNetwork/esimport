@@ -65,12 +65,12 @@ class ESProxy:
 		# For bulk ES insert, a command must be present above every data document
 		# that specifies the action to perform. This generator inserts the index
 		# command into an iterable at the appropriate locations.
-		def bulk_index_generator(it, index_name, type_name):
+		def bulk_index_generator(it):
 			for d in it:
 				yield dict(index=dict(_index=index_name, _type=type_name))
 				yield d
 
-		docs = [json.dumps(doc) for doc in bulk_index_generator(iterable, index_name, type_name)]
+		docs = [json.dumps(doc) for doc in bulk_index_generator(iterable)]
 		for i in range(0, len(docs), chunk_size):
 			data="\n".join(docs[i:i + chunk_size]) + "\n"
 			self.es.post(path, data=data)

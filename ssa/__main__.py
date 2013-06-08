@@ -68,8 +68,8 @@ def import_data(filename, \
 
 		# closure for displaying status of operation
 		def show_status(current_count, total_count):
-			current_status = current_count * 100 / total_count
-			sys.stdout.write("\rCurrent Status: %d%%" %current_status)
+			percent_complete = current_count * 100 / total_count
+			sys.stdout.write("\rstatus: %d%%" % percent_complete)
 			sys.stdout.flush()
 
 		print "importing data into " + full_url + " from file " + filename
@@ -82,7 +82,7 @@ def import_data(filename, \
 		# indicate completion
 		show_status(100, 100)
 		end_time = time.time() - start_time
-		print " operation completed in " + str(end_time) + " seconds"
+		print ", operation completed in %.2f seconds" % end_time
 
 	else:
 		print "index at " + es_server + "/" + index_name + " can't be written to"
