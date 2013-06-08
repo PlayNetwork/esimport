@@ -1,3 +1,4 @@
+import json
 import sys
 
 import rawes
@@ -54,9 +55,35 @@ def get_es(es_server, username, password):
 
 
 
-def bulk_index_doc(docs, index_name, type_name, es):
-	path = index_name + "/" + type_name + "/_bulk?refresh=true"
-	return es.post(path, data=docs)
+#
+# Persists a Dictionary in ES via bulk index API
+# http://www.elasticsearch.org/guide/reference/api/bulk/
+#
+def bulk_index_doc(iterable, index_name, type_name, es, chunk_size, show_status=None):
+	path = index_name + "/" + type_name + "/_bulk"
+
+	docs = [json.dumps(doc) for doc in bulk_index_generator(iterable, index_name, type_name)]
+	print "total docs: " + str(len(docs))
+	for i in range(0, len(docs), chunk_size):
+		data="\n".join(docs[i:i + chunk_size]) + "\n"
+		es.post(path, data=data)
+		if show_status is not None:
+			show_status(i + chunk_size, len(docs))
+
+	return "POST " + path + " complete"
+
+
+
+#
+# For bulk ES insert, a command must be present above every data document
+# that specifies the action to perform. This generator inserts the index
+# command into an iterable at the appropriate locations.
+#
+def bulk_index_generator(it, index_name, type_name):
+	for d in it:
+		yield dict(index=dict(_index=index_name, _type=type_name))
+		yield d
+
 
 
 #
