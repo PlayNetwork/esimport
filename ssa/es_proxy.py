@@ -54,6 +54,11 @@ def get_es(es_server, username, password):
 
 
 
+def bulk_index_doc(docs, index_name, type_name, es):
+	path = index_name + "/" + type_name + "/_bulk?refresh=true"
+	return es.post(path, data=docs)
+
+
 #
 # Adds a new document to ES, uses POST to auto-generate an ID
 # http://www.elasticsearch.org/guide/reference/api/index_/

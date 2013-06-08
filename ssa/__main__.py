@@ -1,6 +1,7 @@
 # Python dependencies
 import argparse
 import csv
+import json
 import math
 import os
 import sys
@@ -15,15 +16,7 @@ import importfile_util
 
 
 
-#
-# TODO:
-# - change key names to something more understandable and more appropriate
-#   to the document store paradigm
-# - allow user to create multiple types within an index
-# - allow user to use a type name different from the index name
-# - reorganize argparser so it only accepts certain arguments with the arguments
-#   they're MEANT to work with.  it just ignores irrelevant args right now.
-#
+BULKINDEX_COUNT=1000
 
 
 
@@ -70,6 +63,7 @@ def import_data(filename, \
         es_proxy.ensure_mapping(index_name, type_name, mapping_def, es)
 
     if is_index_ready:
+        bulk = False
         current_count = 0
         current_status = 0
         start_time = time.time()
@@ -77,19 +71,35 @@ def import_data(filename, \
 
         # translate if applicable and then retrieve the field names
         if field_translations is not None:
-            reader = translate_fields(data_lines, field_translations)
+            bulk = True
+            reader = translate_fields(data_lines, field_translations, index_name, type_name)
         else:
             reader = csv.DictReader(data_lines, delimiter="\t")
 
         print "importing " + str(total_count) + " records from " + filename
-        for doc in reader:
-            es_proxy.index_doc(doc, index_name, type_name, es)
+        if bulk:
+            docs = [json.dumps(doc) for doc in reader]
+            for i in range(0, len(docs), BULKINDEX_COUNT):
+                es_proxy.bulk_index_doc("\n".join(docs[i:i+BULKINDEX_COUNT]), \
+                    index_name, \
+                    type_name, \
+                    es)
 
-            # indicate current status
-            current_count += 1
-            current_status = math.floor(current_count * 100 / total_count)
-            sys.stdout.write("\rCurrent Status: %d%%" %current_status)
-            sys.stdout.flush()
+                # indicate current status
+                current_count += BULKINDEX_COUNT
+                current_status = math.floor(current_count * 100 / total_count)
+                sys.stdout.write("\rCurrent Status: %d%%" %current_status)
+                sys.stdout.flush()
+
+        else:
+            for doc in reader:
+                es_proxy.index_doc(doc, index_name, type_name, es)
+
+                # indicate current status
+                current_count += 1
+                current_status = math.floor(current_count * 100 / total_count)
+                sys.stdout.write("\rCurrent Status: %d%%" %current_status)
+                sys.stdout.flush()
 
         # indicate completion
         sys.stdout.write("\rCurrent Status: 100%\n\n")
@@ -110,7 +120,7 @@ def import_data(filename, \
 # Returns list of field names based on the instructions in a tab-delimited field
 # translations file.
 #
-def translate_fields(data_lines, field_translations_path):
+def translate_fields(data_lines, field_translations_path, index_name, type_name):
     reader = csv.DictReader(data_lines, delimiter="\t")
     fieldtranslation_lines = importfile_util.retrieve_file_lines(field_translations_path)
 
@@ -120,7 +130,7 @@ def translate_fields(data_lines, field_translations_path):
     fieldname_keys = fieldtranslation_lines[0].split("\t")
     fieldname_values = fieldtranslation_lines[1].split("\t")
 
-    return data_filter(reader, fieldname_keys, fieldname_values)
+    return data_filter(reader, fieldname_keys, fieldname_values, index_name, type_name)
 
 
 
@@ -128,9 +138,14 @@ def translate_fields(data_lines, field_translations_path):
 # Filters the fields within a Dictionary and maps them to the specified
 # fieldvalue names
 #
-def data_filter(it, keys, fieldvalues):
+def data_filter(it, keys, fieldvalues, index_name, type_name):
+    index = 0
     for d in it:
-        yield dict((fieldvalues[keys.index(k)], d[k]) for k in keys)
+        if index == 0 or index % 2 == 0:
+            yield dict(index=dict(_index=index_name, _type=type_name))
+        else:
+            yield dict((fieldvalues[keys.index(k)], d[k]) for k in keys)
+        index += 1
 
 
 
