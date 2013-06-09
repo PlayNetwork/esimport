@@ -100,7 +100,7 @@ genre	albumToken	ISRC	recordCompany	artistPrint	songToken	durationInSeconds	titl
 Mapping is the process of defining the characteristics of a document so
 ElasticSearch can treat the data appropriately.  Characteristics such as field
 type, whether a field is searchable, and whether to include a timestamp may all
-be defined in a map. 
+be defined in a map.
 
 *Please note:* If the specified mapping does not match the field names in the tab-delimited file, you should supply a field translation file (described above).
 
@@ -153,7 +153,7 @@ More details on mapping may be found in [ElasticSearch's mapping reference][ES-m
 
 #### Basic Auth
 
-If login credentials are required, add the arguments -user and -password
+If login credentials are required, add the arguments -user and -pass
 
 ```Bash
 python -m ssa -s https://myserver.com -f /path/to/import/data.file -i myindex -user exampleuser -pass mypassword
@@ -364,23 +364,24 @@ $0:=False  `this is a scheduled task, so $0=done.  It should always return done:
 
 
 ## Resources
-- Python libraries
-  - `Requests`: [documentation][requests-lib] | [quickstart][requests-docs]
-  - `PyES`: [Github][pyes-lib] | [documentation][pyes-docs]
-- 4D
-  - `EXPORT DATA`: [command reference][4D-EXPORT-DATA-docs]
-- ElasticSearch
-  - [Windows installers][ES-windows-installers]: What's special about this is
-	that it already has ES packaged up to run as a service.  The official ES
-	website provides instructions on how to run ES as a service, but it requires
-	a separate download and extra setup time.  This is a nice timesaver.
-  - Mapping: [reference][ES-mapping-doc]
+
+* Python libraries
+	* `rawes`: [Github][rawes-lib] | [documentation][rawes-docs]
+* 4D
+	* `EXPORT DATA`: [command reference][4D-EXPORT-DATA-docs]
+* ElasticSearch
+	* Mac install:
+
+```Bash
+brew install elasticsearch
+```
+
+	* [Windows installers][ES-windows-installers]: What's special about this is that it already has ES packaged up to run as a service.  The official ES website provides instructions on how to run ES as a service, but it requires a separate download and extra setup time.  This is a nice timesaver.
+	* Mapping: [reference][ES-mapping-doc]
 
 
-[pyes-lib]: https://github.com/aparo/pyes
-[pyes-docs]: http://pyes.readthedocs.org/en/latest/index.html
-[requests-lib]: http://docs.python-requests.org/en/latest/index.html
-[requests-docs]: http://docs.python-requests.org/en/latest/user/quickstart/
+[rawes-lib]: https://github.com/humangeo/rawes
+[rawes-docs]: https://github.com/humangeo/rawes#rawes
 [4D-EXPORT-DATA-docs]: http://doc.4d.com/4D-Language-Reference-11.6/Import-and-Export/EXPORT-DATA.301-206065.en.html
 [ES-mapping-doc]: http://www.elasticsearch.org/guide/reference/mapping/
 [ES-windows-installers]: https://github.com/rgl/elasticsearch-setup
