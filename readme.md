@@ -80,6 +80,14 @@ If you do not want to use the original field names from the tab-delimited file, 
 
 *Please note:* Any original field names omitted from the first row, will be omitted from the imported data as well. This is a handy way to filter the columns at time of import if that is necessary.
 
+
+```Bash
+python -m ssa -s myserver:9200 -f /path/to/import/data.file -i myindex -t tracks -m /path/to/mapping.json -n /path/to/translations.file
+```
+
+* -n _field_translation_filepath_ (location of tab-delimited field translation file for specified type)
+
+
 #### Sample song field translations file
 ```
 Alb_Category	Album_ID	ISRC	Record_Co	SongArtPrint	Song_ID_pk	Song_Secs	Song_Title
