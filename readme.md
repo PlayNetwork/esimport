@@ -370,12 +370,6 @@ $0:=False  `this is a scheduled task, so $0=done.  It should always return done:
 * 4D
 	* `EXPORT DATA`: [command reference][4D-EXPORT-DATA-docs]
 * ElasticSearch
-	* Mac install:
-
-```Bash
-brew install elasticsearch
-```
-
 	* [Windows installers][ES-windows-installers]: What's special about this is that it already has ES packaged up to run as a service.  The official ES website provides instructions on how to run ES as a service, but it requires a separate download and extra setup time.  This is a nice timesaver.
 	* Mapping: [reference][ES-mapping-doc]
 
