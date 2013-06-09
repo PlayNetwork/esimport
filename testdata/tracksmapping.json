@@ -1,5 +1,5 @@
 {
-	"songs" : {
+	"tracks" : {
 		"properties" : {
 			"trackToken" : {
 				"type" : "integer"

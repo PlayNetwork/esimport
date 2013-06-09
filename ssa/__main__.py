@@ -36,8 +36,6 @@ def import_data(filename, \
 		return
 
 	if type_name is None:
-		# bugfix - previous code assumed windows file paths
-		#filename_no_path = filename.split('\\')[-1]
 		filename_no_path = os.path.basename(filename)
 		type_name = filename_no_path.split('.')[0].lower()
 
@@ -121,42 +119,42 @@ def translate_fields(data_lines, field_translations_path):
 #
 def set_up_argparser():
 	parser = argparse.ArgumentParser(\
-		description='Processes tab-delimited files and imports data to the specified ES server')
+		description="Processes tab-delimited files and imports data to the specified ES server")
 	parser.add_argument('-s', '--es_server', \
 		nargs=1, \
 		required=True, \
-		help="The ES URI")
-	parser.add_argument('-user', '--username', \
+		help="ElasticSearch URI")
+	parser.add_argument("-user", "--username", \
 		nargs=1, \
 		default=[None], \
-		help="Username for ES")
-	parser.add_argument('-pass', '--password', \
+		help="username for Basic Authentication")
+	parser.add_argument("-pass", "--password", \
 		nargs=1, \
 		default=[None], \
-		help="Password for ES")
-	parser.add_argument('-i', '--index_name', \
+		help="password for Basic Authentication")
+	parser.add_argument("-i", "--index_name", \
 		nargs=1, \
 		required=True, \
-		help="The index for the new data.")
-	parser.add_argument('-rm', '--delete_preexisting_type', \
+		help="the index for the new data.")
+	parser.add_argument("-rm", "--delete_preexisting_type", \
 		action="store_true", \
 		default=False, \
-		help="Remove any docs of specified type prior to import")
+		help="remove any docs of specified type prior to import")
 	parser.add_argument('-f', '--filename', \
 		nargs=1, \
-		help="Tab-delimited file to import into ES")
-	parser.add_argument('-map', '--map_file_path', \
+		help="tab-delimited file to import into ES")
+	parser.add_argument("-m", "--map_file_path", \
 		nargs=1, \
 		default=[None], \
-		help="Mapping file for specified type")
-	parser.add_argument('-fn', '--field_name_translations_path', \
+		help="file containing JSON mapping for specified type")
+	parser.add_argument("-n", "--field_name_translations_path", \
 		nargs=1, \
 		default=[None], \
-		help="Translation file between mapping and tab-delimited columns.")
-	parser.add_argument('-t', '--type_name', \
+		help="translation file between mapping and tab-delimited columns")
+	parser.add_argument("-t", "--type_name", \
 		nargs=1, \
 		default=[None], \
-		help="The type for the documents to import.")
+		help="type name for the documents to import")
 
 	return parser
 

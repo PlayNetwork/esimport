@@ -6,153 +6,79 @@ Tool exists to synchronize 4d database content from Conductor with a search engi
 
 Create a folder for your Virtual environments on your machine (see example below):
 
-```
-#!shell
+```Bash
 mkdir -p ~/Virtualenvs
 cd ~/Virtualenvs
 ```
 
 Create and activate a virtual environment for this project:
 
-```
-#!shell
+```Bash
 virtualenv search-sync-agent
 source search-sync-agent/bin/activate
 ```
 
 Now clone this repo into your projects folder:
 
-```
-#!shell
+```Bash
 mkdir -p ~/Projects
 cd ~/Projects
 git clone git@bitbucket.org:playnetwork/search-sync-agent.git
 cd search-sync-agent
 ```
 
-
 ## Prerequisites
+
 All dependencies are noted in setup.py and can be installed via the following command after git clone:
 
-```
-#!shell
+```Bash
 python setup.py develop
 ```
 
-## Script Assumptions
-- The key names are the first row of data in the TDF file.
-- The index name, if not specified on command line, is defaulted to the filename minus extension.
-
 ## Use
-If login credentials are required for any operation, add the arguments
-`-user 'username'` and `-pass 'password'`.
+To import a tab-delimited file (where the first row contains field names) into an ElasticSearch server, you must supply the -s, -f and -i arguments. The following example will import tab-delimited data from data.file into an ElasticSearch index/type located at http://myserver:9200/myindex/data:
 
-### Adding data
-- When adding data to ElasticSearch, you can optionally clear the existing
-  ElasticSearch index before data is added by including the `-rm` argument.
-
-Process tab-delimited data and push the contents into the 'conductor' index
-`-i` of the ElasticSearch database located at server `-s` address
-**10.129.1.201:9200**:
-
-```
-#!shell
-python -m ssa -f '\\skynyrd\Export\Dev\data\Song.txt' -i 'conductor' -s '10.129.1.210:9200'
+```Bash
+python -m ssa -s myserver:9200 -f /path/to/import/data.file -i myindex
 ```
 
-### Other commands
+* -s _server_ (may either be a hostname:port or fully qualified, i.e. https://servername:port)
+* -f _filepath_ (location of tab-delimited file to import data from)
+* -i _index_name_ (name of the index to store the data to in ElasticSearch)
 
 Further help available via the script:
 
-```
-#!shell
+```Bash
 python -m ssa --help
 ```
 
-## Data Support Files
+### Additional Options
 
-### Bulk Imports
-If you wish to use index names other than the default (file name minus
-extension) while bulk-importing.  To do this, add the `-tp` argument followed
-by the path to a TDF file.  The first row of this file should consist of the
-original data set names *in lowercase* and separated by tabs; the second,
-the new names, again separated by tabs.
+#### Clear Existing Data First
 
-If bulk-importing all data in a directory, you will also need to use the
-`index_name.ext` naming convention.
+When adding data to ElasticSearch, you can optionally clear the existing ElasticSearch type before data is added by including the -rm argument.
 
-For example:
-
-- `Song.txt`: data file (tab-delimited)
-- `Song.map`: map file (JSON)
-- `Song.keys`: field name translations file (tab-delimited)
-
-### Map File
-Mapping is the process of defining the characteristics of a document so
-ElasticSearch can treat the data appropriately.  Characteristics such as field
-type, whether a field is searchable, and whether to include a timestamp may all
-be defined in a map.
-
-An ElasticSearch index may contain documents of different **mapping types**.  At
-present, search-sync-agent assumes that all documents' type name is the index
-name and adds them as that type.
-
-ElasticSearch *can* make basic inferences about a document type based on the
-documents that are added, so explicit mapping is not required.  However,
-providing a map for each type in an index is **highly recommended** when using
-search-sync-agent because the data is obtained from text files.  If a map is not
-provided, every field will be stored as a string.
-
-Maps should be provided in JSON format, as seen below and on the ElasticSearch website.
-
-#### Sample mapping for a document type "song"
-```
-{
-  "song" : {
-	"properties" : {
-	  "genre" : {
-		"type" : "string"
-	  },
-	  "albumToken" : {
-		"type" : "integer"
-	  },
-	  "titleDisplay" : {
-		"type" : "string"
-	  },
-	  "ISRC" : {
-		"type" : "string"
-	  },
-	  "recordCompany" : {
-		"type" : "string"
-	  },
-	  "artistAlpha" : {
-		"type" : "string"
-	  },
-	  "artistPrint" : {
-		"type" : "string"
-	  },
-	  "songToken" : {
-		"type" : "integer"
-	  },
-	  "durationInSeconds" : {
-		"type" : "integer"
-	  },
-	  "title" : {
-		"type" : "string"
-	  }
-	}
-  }
-}
+```Bash
+python -m ssa -s myserver:9200 -f /path/to/import/data.file -i myindex -rm
 ```
 
-More details on mapping may be found in [ElasticSearch's mapping reference][ES-mapping-doc].
+* -rm (removes all documents of given type within the specified index on ElasticSearch)
 
+#### Type Name
 
-### Field Translations File
-If you do not want to use the original field names from Conductor, you will need
-to provide a field translations file.  The first row of this file should consist
-of the original field names, separated by tabs; the second, the new names, again
-separated by tabs.
+By default, the type name for the documents indexed in ElasticSearch will match the name of the file. To override this behavior and specify the type, supply the -t parameter via the command line. The following example will import data to http://myserver:9200/myindex/tracks:
+
+```Bash
+python -m ssa -s myserver:9200 -f /path/to/import/data.file -i myindex -t tracks
+```
+
+* -t _type_name_ (the name of the document type in ElasticSearch)
+
+#### Field Translations
+
+If you do not want to use the original field names from the tab-delimited file, you will need to provide a field translations file.  The first row of this file should consist of the original field names, separated by tabs; the second, the new names, again separated by tabs.
+
+*Please note:* Any original field names omitted from the first row, will be omitted from the imported data as well. This is a handy way to filter the columns at time of import if that is necessary.
 
 #### Sample song field translations file
 ```
@@ -160,6 +86,70 @@ Alb_Category	Album_ID	ISRC	Record_Co	SongArtPrint	Song_ID_pk	Song_Secs	Song_Titl
 genre	albumToken	ISRC	recordCompany	artistPrint	songToken	durationInSeconds	title
 ```
 
+
+#### Mapping
+
+Mapping is the process of defining the characteristics of a document so
+ElasticSearch can treat the data appropriately.  Characteristics such as field
+type, whether a field is searchable, and whether to include a timestamp may all
+be defined in a map. 
+
+*Please note:* If the specified mapping does not match the field names in the tab-delimited file, you should supply a field translation file (described above).
+
+A mapping file can be specified by adding the -m parameter to the command:
+
+```Bash
+python -m ssa -s myserver:9200 -f /path/to/import/data.file -i myindex -t tracks -m /path/to/mapping.json
+```
+
+* -m _mapping_filepath_ (location of JSON formatted mapping file for specified type)
+
+Maps should be provided in JSON format, as seen below and on the ElasticSearch website.
+
+##### Sample mapping for a document type "tracks"
+
+```JSON
+{
+	"tracks" : {
+		"properties" : {
+			"genre" : {
+				"type" : "string"
+		  	},
+			"album" : {
+				"type" : "string"
+			},
+			"ISRC" : {
+				"type" : "string"
+			},
+			"recordCompany" : {
+				"type" : "string"
+			},
+			"artist" : {
+				"type" : "string"
+			},
+			"songToken" : {
+				"type" : "integer"
+			},
+			"durationInSeconds" : {
+				"type" : "integer"
+			},
+			"title" : {
+				"type" : "string"
+			}
+		}
+	}
+}
+```
+
+More details on mapping may be found in [ElasticSearch's mapping reference][ES-mapping-doc].
+
+#### Basic Auth
+
+If login credentials are required, add the arguments -user and -password
+
+```Bash
+python -m ssa -s https://myserver.com -f /path/to/import/data.file -i myindex -user exampleuser -pass mypassword
+```
 
 ## Conductor Data Export
 
