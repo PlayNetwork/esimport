@@ -90,8 +90,8 @@ def import_data(filename, \
 
 
 #
-# Returns list of field names based on the instructions in a tab-delimited field
-# translations file.
+# Returns iterable with new field names based on the instructions in a
+# tab-delimited field translations file.
 #
 def translate_fields(data_lines, field_translations_path):
 	reader = csv.DictReader(data_lines, delimiter=DELIMITER_TAB)
