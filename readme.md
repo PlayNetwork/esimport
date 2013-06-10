@@ -30,6 +30,17 @@ python -m esimport --help
 
 ### Additional Options
 
+#### Custom Delimiter
+
+The default delimiter for the operation is a ",", but you may specify different delimiters via the -d argument.
+
+```Bash
+python -m esimport -s myserver:9200 -f /path/to/import/data.file -i myindex -t mytype -d '|'
+```
+
+* -d _delimiter_ (the delimiter separating columns within the CSV)
+
+
 #### Clear Existing Data First
 
 When indexing data in ElasticSearch, you may optionally clear the existing ElasticSearch type before data is added by including the -rm argument.
