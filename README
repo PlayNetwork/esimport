@@ -3,16 +3,6 @@ ElasticSearch Importy (esimport)
 
 Tool exists to index content from a CSV in ElasticSearch.
 
-Prerequisites
--------------
-
-All dependencies are noted in setup.py and can be installed via the
-following command after git clone:
-
-.. code:: Bash
-
-    python setup.py develop
-
 Use
 ---
 
@@ -157,33 +147,6 @@ If login credentials are required, add the arguments -user and -pass
 .. code:: Bash
 
     python -m esimport -s https://myserver.com -f /path/to/import/data.file -i myindex -t mytype -user exampleuser -pass examplepassword
-
-Developing Locally
-------------------
-
-Create a folder for your Virtual environments on your machine (see
-example below):
-
-.. code:: Bash
-
-    mkdir -p ~/Virtualenvs
-    cd ~/Virtualenvs
-
-Create and activate a virtual environment for this project:
-
-.. code:: Bash
-
-    virtualenv esimport
-    source esimport/bin/activate
-
-Now clone this repo into your projects folder:
-
-.. code:: Bash
-
-    mkdir -p ~/Projects
-    cd ~/Projects
-    git clone git@bitbucket.org:playnetwork/esimport.git
-    cd esimport
 
 Dependencies
 ------------

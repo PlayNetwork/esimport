@@ -2,14 +2,6 @@
 
 Tool exists to index content from a CSV in ElasticSearch.
 
-## Prerequisites
-
-All dependencies are noted in setup.py and can be installed via the following command after git clone:
-
-```Bash
-python setup.py develop
-```
-
 ## Use
 To index the contents of a CSV file (where the first row contains field names) into an ElasticSearch server, you must supply the -s, -f, -i and -t arguments. If the specified index or type does not exist within the specified ElasticSearch server, it will be created when the module executes. The following example will index data from data.file into ElasticSearch at http://myserver:9200/myindex/mytype:
 
@@ -118,31 +110,6 @@ If login credentials are required, add the arguments -user and -pass
 
 ```Bash
 python -m esimport -s https://myserver.com -f /path/to/import/data.file -i myindex -t mytype -user exampleuser -pass examplepassword
-```
-
-## Developing Locally
-
-Create a folder for your Virtual environments on your machine (see example below):
-
-```Bash
-mkdir -p ~/Virtualenvs
-cd ~/Virtualenvs
-```
-
-Create and activate a virtual environment for this project:
-
-```Bash
-virtualenv esimport
-source esimport/bin/activate
-```
-
-Now clone this repo into your projects folder:
-
-```Bash
-mkdir -p ~/Projects
-cd ~/Projects
-git clone git@bitbucket.org:playnetwork/esimport.git
-cd esimport
 ```
 
 ## Dependencies

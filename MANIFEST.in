@@ -1,2 +1,2 @@
-include AUTHORS CHANGES README INSTALL LICENCE
+include CHANGES README LICENSE
 recursive-include esimport *.py

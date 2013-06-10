@@ -1,4 +1,4 @@
-from setuptools import setup
+from distutils.core import setup
 
 setup(name="esimport",
 	version="0.1.1",
@@ -9,7 +9,7 @@ setup(name="esimport",
 	packages=["esimport"],
 	package_dir={"esimport" : "esimport"},
 	license='MIT license, see LICENSE.txt',
-	long_description=open('README.rst').read(),
+	long_description=open('README').read(),
 	include_package_data=True,
 	install_requires=[
 		"rawes"
