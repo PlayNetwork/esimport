@@ -19,7 +19,7 @@ def set_up_argparser():
 	parser = argparse.ArgumentParser(\
 		description="Processes tab-delimited files and imports data to the specified ES server")
 
-	parser.add_argument("-d", "--delimiter" \
+	parser.add_argument("-d", "--delimiter", \
 		nargs=1, \
 		default=[DELIMITER_DEFAULT], \
 		help="delimiter between columns in the import file (defaults to ',')")
@@ -73,7 +73,7 @@ def main(argv):
 
 	if os.path.isfile(args.filename[0]):
 		esimport.import_data(args.filename[0], \
-			delimiter=args.delimeter, \
+			delimiter=args.delimiter[0].decode("string-escape"), \
 			server=args.server[0], \
 			index_name=args.index_name[0], \
 			type_name=args.type_name[0], \

@@ -6,7 +6,7 @@ import sys
 import time
 
 # local source dependencies
-from elasticsearch import ElasticSearch
+from elasticsearch import ElasticSearchConnection
 import utils
 
 
@@ -35,7 +35,7 @@ def import_data(filename, \
 		print "there is no data to import in " + filename
 		return
 
-	es = ESProxy(server, username, password)
+	es = ElasticSearchConnection(server, username, password)
 	full_url = server + "/" + index_name + "/" + type_name
 
 	if delete_type:
@@ -52,7 +52,7 @@ def import_data(filename, \
 
 		# translate field names if applicable
 		if field_translations is not None:
-			reader = translate_fields(data_lines, field_translations)
+			reader = translate_fields_reader(data_lines, field_translations, delimiter)
 		else:
 			reader = csv.DictReader(data_lines, delimiter=delimiter)
 
@@ -85,7 +85,7 @@ def import_data(filename, \
 # Returns iterable with new field names based on the instructions in a
 # CSV field translations file.
 #
-def translate_fields(data_lines, field_translations_path):
+def translate_fields_reader(data_lines, field_translations_path, delimiter):
 	reader = csv.DictReader(data_lines, delimiter=delimiter)
 	fieldtranslation_lines = utils.retrieve_file_lines(field_translations_path)
 
@@ -98,8 +98,8 @@ def translate_fields(data_lines, field_translations_path):
 	# Filters the fields within a Dictionary and maps them to the specified
 	# fieldvalue names so that only fields specified in the field translations
 	# document are returned
-	def data_filter(it, keys, fieldvalues):
+	def field_filter(it, keys, fieldvalues):
 		for d in it:
 			yield dict((fieldvalues[keys.index(k)], d[k]) for k in keys)
 
-	return data_filter(reader, fieldname_keys, fieldname_values)
+	return field_filter(reader, fieldname_keys, fieldname_values)
