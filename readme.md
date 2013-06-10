@@ -2,6 +2,14 @@
 
 Tool exists to index content from a CSV in ElasticSearch.
 
+## Install
+
+In order to install this module, simply use PIP as follows:
+
+```Bash
+pip install esimport
+```
+
 ## Use
 To index the contents of a CSV file (where the first row contains field names) into an ElasticSearch server, you must supply the -s, -f, -i and -t arguments. If the specified index or type does not exist within the specified ElasticSearch server, it will be created when the module executes. The following example will index data from data.file into ElasticSearch at http://myserver:9200/myindex/mytype:
 
