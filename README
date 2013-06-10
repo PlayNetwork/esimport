@@ -1,4 +1,4 @@
-ElasticSearch Importy (esimport)
+ElasticSearch Import Utility (esimport)
 ================================
 
 Tool exists to index content from a CSV in ElasticSearch.
