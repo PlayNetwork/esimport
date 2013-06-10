@@ -4,13 +4,13 @@ import sys
 import rawes
 
 
-class ESProxy:
+class ElasticSearch:
 	#
 	# Creates a "connection" to ES with specified username and password
 	# https://github.com/humangeo/rawes#usage
 	#
-	def __init__(self, es_server, username, password, verify=True):
-		self.es = rawes.Elastic(es_server, auth=(username, password), verify=verify)
+	def __init__(self, server, username, password, verify=True):
+		self.es = rawes.Elastic(server, auth=(username, password), verify=verify)
 
 
 
