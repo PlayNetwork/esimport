@@ -131,6 +131,14 @@ If login credentials are required, add the arguments -user and -pass
 python -m esimport -s https://myserver.com -f /path/to/import/data.file -i myindex -t mytype -user exampleuser -pass examplepassword
 ```
 
+#### Verify SSL
+
+If ElasticSearch requires SSL, the `-nv` setting can be used to bypass certificate verification if necessary.
+
+```Bash
+python -m esimport -s https://myserver.com -f /path/to/import/data.file -i myindex -t mytype -user exampleuser -pass examplepassword -nv
+```
+
 ## Dependencies
 
 * Python libraries

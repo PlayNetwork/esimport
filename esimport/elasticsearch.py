@@ -4,6 +4,7 @@ import sys
 import rawes
 
 
+
 class ElasticSearchConnection:
 	#
 	# Creates a "connection" to ES with specified username and password

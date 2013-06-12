@@ -1,5 +1,6 @@
 # Python dependencies
 import csv
+import json
 import math
 import os
 import sys
@@ -27,7 +28,8 @@ def import_data(filename, \
 	field_translations=None, \
 	mapping=None, \
 	username=None, \
-	password=None):
+	password=None,
+	verify=True):
 
 	data_lines = utils.retrieve_file_lines(filename)
 
@@ -35,19 +37,22 @@ def import_data(filename, \
 		print "there is no data to import in " + filename
 		return
 
-	es = ElasticSearchConnection(server, username, password)
+	es = ElasticSearchConnection(server, username, password, verify)
 	full_url = server + "/" + index_name + "/" + type_name
 
 	if delete_type:
 		print "clearing existing documents from " + full_url
 		es.clear_documents(index_name, type_name)
 
-	if mapping is not None:
-		print "applying mapping from " + mapping + " to " + full_url
-		mapping_def = utils.retrieve_file(mapping)
-		es.ensure_mapping(index_name, type_name, mapping_def)
-
 	if es.ensure_index(index_name):
+		if mapping is not None:
+			print "applying mapping from " + mapping + " to " + full_url
+			try:
+				mapping_def = json.loads(utils.retrieve_file(mapping))
+				es.ensure_mapping(index_name, type_name, mapping_def)
+			except ValueError:
+				print "supplied JSON was not formatted correctly, skipping this step"
+
 		start_time = time.time()
 
 		# translate field names if applicable

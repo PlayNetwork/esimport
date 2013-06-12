@@ -59,6 +59,9 @@ def set_up_argparser():
 		nargs=1, \
 		default=[None], \
 		help="username for Basic Authentication")
+	parser.add_argument("-nv", "--skip_verify", \
+		action="store_false", \
+		help="if ES requires SSL, this setting allows you to bypass certificate validation")
 
 	return parser
 
@@ -81,7 +84,8 @@ def main(argv):
 			field_translations=args.field_translations_path[0], \
 			delete_type=args.delete_type, \
 			username = args.username[0], \
-			password = args.password[0])
+			password = args.password[0],
+			verify = args.skip_verify)
 
 		sys.exit(0)
 	else:
