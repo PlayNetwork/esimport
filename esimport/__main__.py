@@ -59,6 +59,11 @@ def set_up_argparser():
 		nargs=1, \
 		default=[None], \
 		help="username for Basic Authentication")
+	parser.add_argument("-bc", "--bulk_index_count", \
+		nargs=1, \
+		default=[None], \
+		type=int, \
+		help="count to limit bulk index")
 	parser.add_argument("-nv", "--skip_verify", \
 		action="store_false", \
 		help="if ES requires SSL, this setting allows you to bypass certificate validation")
@@ -84,7 +89,8 @@ def main(argv):
 			field_translations=args.field_translations_path[0], \
 			delete_type=args.delete_type, \
 			username = args.username[0], \
-			password = args.password[0],
+			password = args.password[0], \
+			bulk_index_count = args.bulk_index_count[0], \
 			verify = args.skip_verify)
 
 		sys.exit(0)

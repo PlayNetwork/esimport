@@ -168,6 +168,15 @@ If ElasticSearch requires SSL, the -nv setting can be used to bypass certificate
 
     python -m esimport -s https://myserver.com -f /path/to/import/data.file -i myindex -t mytype -user exampleuser -pass examplepassword -nv
 
+Bulk Index Count
+^^^^^^^^^^^^^^^^
+
+You may specify the max number of records to index at time (defaults to 1000) by using the `-bc` argument.
+
+.. code:: Bash
+
+    python -m esimport -s https://myserver.com -f /path/to/import/data.file -i myindex -t mytype -user exampleuser -pass examplepassword -bc 500
+
 Dependencies
 ------------
 

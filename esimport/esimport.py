@@ -28,7 +28,8 @@ def import_data(filename, \
 	field_translations=None, \
 	mapping=None, \
 	username=None, \
-	password=None,
+	password=None, \
+	bulk_index_count=BULKINDEX_COUNT, \
 	verify=True):
 
 	data_lines = utils.retrieve_file_lines(filename)
@@ -67,11 +68,11 @@ def import_data(filename, \
 			sys.stdout.write("\rstatus: %d%%" % percent_complete)
 			sys.stdout.flush()
 
-		print "importing data into " + full_url + " from file " + filename
+		print "importing data into " + full_url + " (" + str(bulk_index_count) + " rows at a time) from file " + filename
 		es.bulk_index_docs(reader, \
 			index_name, \
 			type_name, \
-			BULKINDEX_COUNT,
+			bulk_index_count, \
 			show_status)
 
 		# indicate completion
