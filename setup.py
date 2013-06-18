@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name="esimport",
-	version="0.1.4",
+	version="0.1.5",
 	description="Facilitates the indexing of content from a CSV into ElasticSearch",
 	author="PlayNetwork, Inc.",
 	author_email="industrial@playnetwork.com",

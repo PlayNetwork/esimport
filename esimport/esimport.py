@@ -29,7 +29,7 @@ def import_data(filename, \
 	mapping=None, \
 	username=None, \
 	password=None, \
-	bulk_index_count=BULKINDEX_COUNT, \
+	bulk_index_count=None, \
 	verify=True):
 
 	data_lines = utils.retrieve_file_lines(filename)
@@ -56,11 +56,17 @@ def import_data(filename, \
 
 		start_time = time.time()
 
+		# ensure large fields can be parsed
+		csv.field_size_limit(sys.maxsize)
+
 		# translate field names if applicable
 		if field_translations is not None:
 			reader = translate_fields_reader(data_lines, field_translations, delimiter)
 		else:
 			reader = csv.DictReader(data_lines, delimiter=delimiter)
+
+		if bulk_index_count is None:
+			bulk_index_count = BULKINDEX_COUNT
 
 		# closure for displaying status of operation
 		def show_status(current_count, total_count):
