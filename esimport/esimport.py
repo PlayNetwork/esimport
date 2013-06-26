@@ -104,6 +104,7 @@ def translate_fields_reader(data_lines, field_translations_path, delimiter):
 	if len(fieldtranslation_lines) < 2:
 		return reader
 
+	original_keys = data_lines[0]
 	fieldname_keys = fieldtranslation_lines[0].split(delimiter)
 	fieldname_values = fieldtranslation_lines[1].split(delimiter)
 
@@ -112,6 +113,6 @@ def translate_fields_reader(data_lines, field_translations_path, delimiter):
 	# document are returned
 	def field_filter(it, keys, fieldvalues):
 		for d in it:
-			yield dict((fieldvalues[keys.index(k)], d[k]) for k in keys)
+			yield dict((fieldvalues[keys.index(k)], d[k]) for k in keys if k in original_keys)
 
 	return field_filter(reader, fieldname_keys, fieldname_values)
