@@ -8,10 +8,6 @@ import esimport
 
 
 
-DELIMITER_DEFAULT = ","
-
-
-
 #
 # Set up the argparser in its own method, for clarity.
 #
@@ -21,7 +17,7 @@ def set_up_argparser():
 
 	parser.add_argument("-d", "--delimiter", \
 		nargs=1, \
-		default=[DELIMITER_DEFAULT], \
+		default=[None], \
 		help="delimiter between columns in the import file (defaults to ',')")
 	parser.add_argument("-i", "--index_name", \
 		nargs=1, \
@@ -49,12 +45,17 @@ def set_up_argparser():
 		help="remove any docs of specified type prior to import")
 	parser.add_argument('-s', '--server', \
 		nargs=1, \
-		required=True, \
+		default=[None], \
 		help="ElasticSearch URI")
 	parser.add_argument("-t", "--type_name", \
 		nargs=1, \
 		required=True, \
 		help="type name for the documents to import")
+	parser.add_argument("-T", "--timeout", \
+		nargs=1, \
+		default=[None], \
+		type=float, \
+		help="timeout threshhold for when communicating with ES")
 	parser.add_argument("-user", "--username", \
 		nargs=1, \
 		default=[None], \
@@ -81,16 +82,17 @@ def main(argv):
 
 	if os.path.isfile(args.filename[0]):
 		esimport.import_data(args.filename[0], \
-			delimiter=args.delimiter[0].decode("string-escape"), \
-			server=args.server[0], \
-			index_name=args.index_name[0], \
-			type_name=args.type_name[0], \
-			mapping=args.map_file_path[0], \
-			field_translations=args.field_translations_path[0], \
-			delete_type=args.delete_type, \
+			index_name = args.index_name[0], \
+			type_name = args.type_name[0], \
+			delimiter = args.delimiter[0].decode("string-escape"), \
+			server = args.server[0], \
+			mapping = args.map_file_path[0], \
+			field_translations = args.field_translations_path[0], \
+			delete_type = args.delete_type, \
 			username = args.username[0], \
 			password = args.password[0], \
 			bulk_index_count = args.bulk_index_count[0], \
+			timeout = args.timeout[0], \
 			verify = args.skip_verify)
 
 		sys.exit(0)

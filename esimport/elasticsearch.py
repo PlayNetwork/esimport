@@ -5,13 +5,17 @@ import rawes
 
 
 
+TIMEOUT_DEFAULT = 60
+
+
+
 class ElasticSearchConnection:
 	#
 	# Creates a "connection" to ES with specified username and password
 	# https://github.com/humangeo/rawes#usage
 	#
-	def __init__(self, server, username, password, verify=True):
-		self.es = rawes.Elastic(server, auth=(username, password), verify=verify)
+	def __init__(self, server, username, password, timeout=TIMEOUT_DEFAULT, verify=True):
+		self.es = rawes.Elastic(server, auth=(username, password), timeout=timeout, verify=verify)
 
 
 

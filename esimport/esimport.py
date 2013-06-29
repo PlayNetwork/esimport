@@ -13,6 +13,8 @@ import utils
 
 
 BULKINDEX_COUNT = 1000
+DELIMITER_DEFAULT = ","
+SERVER_DEFAULT = "localhost:9200"
 
 
 
@@ -20,17 +22,24 @@ BULKINDEX_COUNT = 1000
 # Index the contents of a CSV file into ElasticSearch
 #
 def import_data(filename, \
-	delimiter, \
-	server, \
 	index_name, \
 	type_name, \
+	delimiter, \
+	server, \
 	delete_type=False, \
 	field_translations=None, \
 	mapping=None, \
 	username=None, \
 	password=None, \
-	bulk_index_count=None, \
+	bulk_index_count=BULKINDEX_COUNT, \
+	timeout=None, \
 	verify=True):
+
+	if server is None:
+		server = SERVER_DEFAULT
+
+	if bulk_index_count is None:
+		bulk_index_count = BULKINDEX_COUNT
 
 	data_lines = utils.retrieve_file_lines(filename)
 
@@ -38,7 +47,7 @@ def import_data(filename, \
 		print "there is no data to import in " + filename
 		return
 
-	es = ElasticSearchConnection(server, username, password, verify)
+	es = ElasticSearchConnection(server, username, password, timeout, verify)
 	full_url = server + "/" + index_name + "/" + type_name
 
 	if delete_type:
@@ -64,9 +73,6 @@ def import_data(filename, \
 			reader = translate_fields_reader(data_lines, field_translations, delimiter)
 		else:
 			reader = csv.DictReader(data_lines, delimiter=delimiter)
-
-		if bulk_index_count is None:
-			bulk_index_count = BULKINDEX_COUNT
 
 		# closure for displaying status of operation
 		def show_status(current_count, total_count):
@@ -113,6 +119,6 @@ def translate_fields_reader(data_lines, field_translations_path, delimiter):
 	# document are returned
 	def field_filter(it, keys, fieldvalues):
 		for d in it:
-			yield dict((fieldvalues[keys.index(k)], d[k]) for k in keys if k in original_keys)
+			yield dict((fieldvalues[keys.index(k)], d[k]) for k in keys if k in original_keys and k != "")
 
 	return field_filter(reader, fieldname_keys, fieldname_values)
