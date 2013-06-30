@@ -5,3 +5,4 @@ v0.1.4, 2013/06/14 -- Adding ability to specify size of bulk import
 v0.1.5, 2013/06/18 -- Fixing two small bugs (-bc parameter should be optional and large CSV files weren't supported)
 v0.1.6, 2013/06/25 -- Fixing bug where when fields specified in header keys file don't exist in CSV, an exception is thrown
 v0.1.7, 2013/06/29 -- Fixes for exception that was thrown when field name is omitted, and when a timeout occurs communicating with ES
+v0.1.8, 2013/06/30 -- Now displayes the total number of imported documents when complete

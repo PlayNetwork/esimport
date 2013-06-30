@@ -76,14 +76,16 @@ class ElasticSearchConnection:
 				yield d
 
 		docs = [json.dumps(doc) for doc in bulk_index_generator(iterable)]
+		count = len(docs)
 		for i in range(0, len(docs), chunk_size):
 			data="\n".join(docs[i:i + chunk_size]) + "\n"
 			self.es.post(path, data=data)
 
 			if show_status is not None:
-				show_status(i + chunk_size, len(docs))
+				show_status(i + chunk_size, count)
 
-		return "POST " + path + " complete"
+		# Return count, but due to generator, must divide by two
+		return count/2
 
 
 

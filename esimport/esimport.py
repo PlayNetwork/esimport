@@ -81,7 +81,7 @@ def import_data(filename, \
 			sys.stdout.flush()
 
 		print "importing data into " + full_url + " (" + str(bulk_index_count) + " rows at a time) from file " + filename
-		es.bulk_index_docs(reader, \
+		count = es.bulk_index_docs(reader, \
 			index_name, \
 			type_name, \
 			bulk_index_count, \
@@ -90,7 +90,7 @@ def import_data(filename, \
 		# indicate completion
 		show_status(100, 100)
 		end_time = time.time() - start_time
-		print ", operation completed in %.2f seconds" % end_time
+		print ", import of " + str(count) + " documents completed in %.2f seconds" % end_time
 
 	else:
 		print "index at " + server + "/" + index_name + " can't be written to"

@@ -139,6 +139,14 @@ If ElasticSearch requires SSL, the `-nv` setting can be used to bypass certifica
 python -m esimport -s https://myserver.com -f /path/to/import/data.file -i myindex -t mytype -user exampleuser -pass examplepassword -nv
 ```
 
+#### Timeout
+
+You may specify the timeout (defaults to 60) for communication with Elasticsearch using the `-T` argument..
+
+```Bash
+python -m esimport -s https://myserver.com -f /path/to/import/data.file -i myindex -t mytype -user exampleuser -pass examplepassword -T 30
+```
+
 #### Bulk Index Count
 
 You may specify the max number of records to index at time (defaults to 1000) by using the `-bc` argument.

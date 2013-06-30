@@ -1,5 +1,5 @@
 ElasticSearch Import Utility (esimport)
-================================
+=======================================
 
 Tool exists to index content from a CSV in ElasticSearch.
 
@@ -176,6 +176,15 @@ You may specify the max number of records to index at time (defaults to 1000) by
 .. code:: Bash
 
     python -m esimport -s https://myserver.com -f /path/to/import/data.file -i myindex -t mytype -user exampleuser -pass examplepassword -bc 500
+
+Timeout
+^^^^^^^
+
+You may specify the timeout (defaults to 60) for communication with Elasticsearch using the `-T` argument..
+
+.. code:: Bash
+
+    python -m esimport -s https://myserver.com -f /path/to/import/data.file -i myindex -t mytype -user exampleuser -pass examplepassword -T 30
 
 Dependencies
 ------------
