@@ -17,7 +17,7 @@ def set_up_argparser():
 
 	parser.add_argument("-d", "--delimiter", \
 		nargs=1, \
-		default=[None], \
+		default=esimport.DELIMITER_DEFAULT, \
 		help="delimiter between columns in the import file (defaults to ',')")
 	parser.add_argument("-i", "--index_name", \
 		nargs=1, \
